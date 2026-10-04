@@ -1,0 +1,4 @@
+#include <assert.h>
+#include <stdio.h>
+#include "../firmware/Inc/protection.h"
+int main(void){channel_runtime_t r;protection_cfg_t c={.trip_current_a=5,.over_temp_c=90,.auto_retry=0};protection_init(&r);protection_command_on(&r);assert(r.output_enabled);protection_step(&r,&c,6,25,1);assert(r.state==E_FUSE_LATCHED_FAULT);assert(r.fault_flags&1U);protection_init(&r);c.auto_retry=1;c.max_retries=1;c.retry_delay_ms=10;protection_command_on(&r);protection_step(&r,&c,6,25,1);assert(r.state==E_FUSE_RETRY_WAIT);protection_step(&r,&c,0,25,10);assert(r.state==E_FUSE_ON);puts("protection tests: PASS");return 0;}

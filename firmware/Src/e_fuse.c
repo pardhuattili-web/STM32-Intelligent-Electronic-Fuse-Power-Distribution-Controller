@@ -1,0 +1,4 @@
+#include "e_fuse.h"
+void e_fuse_init(e_fuse_controller_t*c){if(!c)return;measurements_default(&c->meas);for(uint8_t i=0;i<E_FUSE_CHANNELS;i++){protection_init(&c->rt[i]);c->cfg[i]=(protection_cfg_t){.trip_current_a=5.0f,.over_current_a=4.0f,.over_temp_c=90.0f,.auto_retry=1,.max_retries=2,.retry_delay_ms=100};}c->cycle_count=0;}
+void e_fuse_set_channel(e_fuse_controller_t*c,uint8_t ch,uint8_t on){if(!c||ch>=4)return;if(on)protection_command_on(&c->rt[ch]);else protection_command_off(&c->rt[ch]);}
+void e_fuse_process(e_fuse_controller_t*c,uint32_t dt){if(!c)return;for(uint8_t i=0;i<4;i++)protection_step(&c->rt[i],&c->cfg[i],c->meas.current_a[i],c->meas.temperature_c[i],dt);c->cycle_count++;}
